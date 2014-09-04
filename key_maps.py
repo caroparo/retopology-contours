@@ -16,8 +16,8 @@ def_cs_map['example_op'] = {}
 import bpy
    
 def_cs_key_map = {}
-def_cs_key_map['action'] = {'SHIFT+LEFTMOUSE'}
-def_cs_key_map['select'] = {'RIGHTMOUSE'}
+def_cs_key_map['action'] = {'LEFTMOUSE'}
+def_cs_key_map['select'] = {'RIGHTMOUSE'}  #this is only used if there is conflict with user preferences
 def_cs_key_map['cancel'] = {'ESC', 'CTRL+ALT+DEL'}
 def_cs_key_map['confirm'] = {'RET', 'NUMPAD_ENTER'}
 def_cs_key_map['modal confirm'] = {'SPACE', 'RET', 'NUMPAD_ENTER'}
@@ -40,7 +40,7 @@ def_cs_key_map['view cursor'] = {'C'}
 def_cs_key_map['undo'] = {'CTRL+Z'}
 def_cs_key_map['mode'] = {'TAB'}
 def_cs_key_map['snap cursor'] = {'SHIFT+S'}
-def_cs_key_map['navigate'] = {} #To be filled in last
+def_cs_key_map['navigate'] = set() #To be filled in last
 
 navigation_events = {'Rotate View', 'Move View', 'Zoom View', 
                      'View Pan', 'View Orbit', 'Rotate View', 
@@ -53,7 +53,7 @@ def get_nav_keys(keycon):
         print(keycon.name)
         for km in keycon.keymaps:
             print(km.name)
-        print('Your keyconfig has no 3D view keymap, please email and post on forum')
+        print('Your keyconfig has no 3D view keymap, please email developer')
         return nav_keys
     
     #navigation keys last, to avoid conflicts eg, Ctl + Wheel
@@ -115,7 +115,7 @@ def add_to_dict(km_dict, key,value, safety = True):
     if safety:
         for k in km_dict.keys():
             if value in km_dict[k]:
-                print('already part of keymap dictionary %s  %s' % (key, value))
+                print('already part of keymap dictionary "%s" :  %s' % (key, value))
                 if key not in km_dict:
                     km_dict[key] = {}
                 return False
@@ -139,12 +139,9 @@ def contours_default_keymap_generate():
     add_to_dict(km_dict,'navigate', 'WHEELUPMOUSE')
     add_to_dict(km_dict,'navigate', 'WHEELDOWNMOUSE')
     
-    for kmi in keycon.keymaps['3D View'].keymap_items:
+    for kmi in bpy.context.window_manager.keyconfigs['Blender'].keymaps['3D View'].keymap_items:
         if kmi.name in navigation_events:     
             add_to_dict(km_dict,'navigate',kmi_details(kmi))
-            if kmi.name == 'Rotate View':
-                print('rotate view')
-                print(kmi_details(kmi))
     return km_dict
           
           
@@ -162,6 +159,7 @@ def contours_keymap():
         print('you have no 3D View config in your keymap, reverting to default Blender')
         keycon = wm.keyconfigs['Blender']
     #get a backup, default keymap (which can be edited by user for overrides)
+    #TODO make the defaults for these better
     if 'maya' in keycon.name:
         def_map = def_cs_key_map
     if '3ds' in keycon.name:
@@ -189,7 +187,7 @@ def contours_keymap():
         print('Please modify key_maps.py in addon directory')
         
         print('default keymap also conflicts with user navigation keys')
-        bpy.ops.url_open(url = "http://cgcookiemarkets.com/blender/forums/topic/custom-modal-hotkeys/")
+        bpy.ops.wm.url_open(url = "http://cgcookiemarkets.com/blender/forums/topic/custom-modal-hotkeys/")
     else:
         print('uneventfully added action keymap :' + str(act))
         for val in act:
@@ -197,21 +195,21 @@ def contours_keymap():
             add_to_dict(km_dict,'modal confirm', val, safety = False)
             
     if sel in nav_keys:
-        print(sel + ' detected in navigations keys')
-        print('This should be your selection key')
+        print(sel + ' for selection detected in navigations keys')
         #try default map
-        if def_map['select'] not in nav_keys:
+        if not def_map['select'] & nav_keys:
             sel = def_map['select']
-            print('I see that you have handled it in your defaults, good work')
+            print('Default overrides does not conflict')
             for val in sel:
                 add_to_dict(km_dict,'select', val, safety = False)
             
         else:
-            print('default selection keymap also conflicts with user navigation keys')
-            bpy.ops.url_open(url = "http://cgcookiemarkets.com/blender/forums/topic/custom-modal-hotkeys/")
- 
+            print('Default select keymap also conflicts with user navigation keys')
+            bpy.ops.wm.url_open(url = "http://cgcookiemarkets.com/blender/forums/topic/custom-modal-hotkeys/")
+            km_dict = contours_default_keymap_generate()
+            return(km_dict)
     else:
-        print('uneventfully added select keymap :' + str(act))
+        print('uneventfully added select keymap :' + str(sel))
         add_to_dict(km_dict,'select', sel, safety = False)
         add_to_dict(km_dict, 'modal cancel', sel, safety = True) #safety so that if select and action are same
 
