@@ -1084,12 +1084,12 @@ class CGCOOKIE_OT_contours_rf(bpy.types.Operator):
         ########################################
         # accept / cancel hard coded
         
-        if eventd['press'] in {'RET', 'NUMPAD_ENTER'}:
+        if eventd['press'] in self.keymap['confirm']:
             self.finish_mesh(eventd['context'])
             eventd['context'].area.header_text_set()
             return 'finish'
         
-        if eventd['press'] in {'ESC'}:
+        if eventd['press'] in self.keymap['cancel']:
             eventd['context'].area.header_text_set()
             return 'cancel'
         
@@ -1117,7 +1117,7 @@ class CGCOOKIE_OT_contours_rf(bpy.types.Operator):
                 return ''
         
    
-        if eventd['press'] == 'LEFTMOUSE':   # cutting and widget hard coded to LMB
+        if eventd['press'] in self.keymap['action']:   # cutting and widget hard coded to LMB
             
             if self.cut_line_widget:
                 self.prepare_widget(eventd)
@@ -1206,12 +1206,12 @@ class CGCOOKIE_OT_contours_rf(bpy.types.Operator):
         ########################################
         # accept / cancel
          
-        if eventd['press'] in {'RET', 'NUMPAD_ENTER'}:
+        if eventd['press'] in self.keymap['confirm']:
             self.finish_mesh(eventd['context'])
             eventd['context'].area.header_text_set()
             return 'finish'
          
-        if eventd['press'] in {'ESC'}:
+        if eventd['press'] in self.keymap['cancel']:
             eventd['context'].area.header_text_set()
             return 'cancel'
          
@@ -1248,7 +1248,7 @@ class CGCOOKIE_OT_contours_rf(bpy.types.Operator):
                 
                 return ''
          
-        if eventd['press'] in {'LEFTMOUSE'}: #LMB hard code for sketching
+        if eventd['press'] in self.keymap['action']: #LMB hard code for sketching
             self.footer = 'sketching'
             x,y = eventd['mouse']
             self.sketch = [(x,y)] 
@@ -1321,7 +1321,7 @@ class CGCOOKIE_OT_contours_rf(bpy.types.Operator):
             self.sel_loop.tail.y = y      
             return ''
         
-        if eventd['release'] in {'LEFTMOUSE'}: #LMB hard code for cut
+        if eventd['release'] in self.keymap['action']: #LMB hard code for cut
             print('new cut made')
             x,y = eventd['mouse']
             self.release_place_cut(eventd['context'], self.settings, x, y)
@@ -1340,7 +1340,7 @@ class CGCOOKIE_OT_contours_rf(bpy.types.Operator):
                         
             return ''
         
-        elif eventd['release'] in {'LEFTMOUSE','SHIFT+LEFTMOUSE'}:  #why shift?
+        elif eventd['release'] in self.keymap['action']:
             print('released....trying to make a new path')
             self.sketch_confirm(eventd['context'])
                 
@@ -1355,12 +1355,12 @@ class CGCOOKIE_OT_contours_rf(bpy.types.Operator):
             self.widget_transform(context, self.settings, eventd)
             return ''
         
-        elif eventd['release'] == 'LEFTMOUSE':
+        elif eventd['release'] in self.keymap['action'] | self.keymap['modal confirm']:
             self.cut_line_widget = None
             self.sel_path.update_backbone(context, self.original_form, self.bme, self.sel_loop, insert = False)
             return 'main loop'
         
-        elif eventd['press'] in {'RIGHTMOUSE', 'ESC'}:
+        elif eventd['press'] in self.keymap['modal cancel']:
             self.cut_line_widget.cancel_transform()
             self.sel_loop.cut_object(context, self.original_form, self.bme)
             self.sel_loop.simplify_cross(self.sel_path.ring_segments)
@@ -1414,6 +1414,7 @@ class CGCOOKIE_OT_contours_rf(bpy.types.Operator):
         settings = context.user_preferences.addons[AL.FolderName].preferences
         self.settings = settings
         if settings.dynamic_keys:
+            print('Dynamic Keymap')
             self.keymap = key_maps.contours_keymap()
         else:
             self.keymap = key_maps.contours_default_keymap_generate()
