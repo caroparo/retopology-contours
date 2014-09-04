@@ -40,7 +40,7 @@ from contour_classes import ContourCutLine, ExistingVertList, CutLineManipulator
 from mathutils.geometry import intersect_line_plane, intersect_point_line
 from bpy.props import EnumProperty, StringProperty,BoolProperty, IntProperty, FloatVectorProperty, FloatProperty
 from bpy.types import Operator, AddonPreferences
-
+import key_maps
 
 # Create a class that contains all location information for addons
 AL = general_utilities.AddonLocator()
@@ -1408,23 +1408,15 @@ class CGCOOKIE_OT_contours_rf(bpy.types.Operator):
         if nmode: self.mode = nmode
         
         return {'RUNNING_MODAL'}
-    
-    
-    
-    
-
-              
-    
-    
-    
-        
-    
-                    
+ 
                     
     def invoke(self, context, event):
         settings = context.user_preferences.addons[AL.FolderName].preferences
         self.settings = settings
-        self.keymap = contour_utilities.contour_keymap_generate()
+        if settings.dynamic_keys:
+            self.keymap = key_maps.contours_keymap()
+        else:
+            self.keymap = key_maps.contours_default_keymap_generate()
         self.mode = 'main loop'
         self.mode_last = 'main loop'
         

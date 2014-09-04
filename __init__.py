@@ -465,6 +465,10 @@ class ContourToolsAddonPreferences(AddonPreferences):
             max = 100,
             )
     
+    dynamic_keys = BoolProperty(
+            name="Auto Keymap",
+            default=True)
+    
     def draw(self, context):
         layout = self.layout
 
