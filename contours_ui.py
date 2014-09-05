@@ -1418,6 +1418,13 @@ class CGCOOKIE_OT_contours_rf(bpy.types.Operator):
             self.keymap = key_maps.contours_keymap()
         else:
             self.keymap = key_maps.contours_default_keymap_generate()
+        
+        print('\n')
+        print('######## KEYMAP ##########')   
+        for key in self.keymap:
+            if key != 'navigate':
+                print(key + ': ' + str(self.keymap[key]))
+        print('\n')    
         self.mode = 'main loop'
         self.mode_last = 'main loop'
         

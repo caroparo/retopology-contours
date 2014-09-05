@@ -215,14 +215,17 @@ def contours_keymap():
 
     ######################################
     ######  Grab, Rotate and Scale  ######
-    trans = set(find_kmi_by_idname('transform.transate', keymap = '3D View'))
+    trans = set(find_kmi_by_idname('transform.translate', keymap = '3D View'))
     if not trans:
+        
         km_dict['translate'] = def_map['translate']
+        print('default translate used...no translate found: ' + str(def_map['translate']))
     else:
         km_dict['translate'] = trans
             
     rot = set(find_kmi_by_idname('transform.rotate', keymap = '3D View'))
     if not rot:
+        print('default rotate used...no rotate found: ' + str(def_map['translate']))
         km_dict['rotate'] = def_map['rotate']
     else:
         km_dict['rotate'] = rot 
