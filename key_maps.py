@@ -121,7 +121,7 @@ def add_to_dict(km_dict, key,value, safety = True):
     if safety:
         for k in km_dict.keys():
             if value in km_dict[k]:
-                print('already part of keymap dictionary "%s" :  %s' % (key, value))
+                print('%s is already part of keymap "%s"' % (value, key))
                 if key not in km_dict:
                     km_dict[key] = {}
                 return False
@@ -221,23 +221,37 @@ def contours_keymap():
 
     ######################################
     ######  Grab, Rotate and Scale  ######
+    
+    #direct keymaps to operators
     trans = set(find_kmi_by_idname('transform.translate', keymap = '3D View'))
+    rot = set(find_kmi_by_idname('transform.rotate', keymap = '3D View'))
+    scale = set(find_kmi_by_idname('transform.resize', keymap = '3D View'))
+    
+    #Transform Modal Map.  Maya has no operator keymap, just
+    if 'Transform Modal Map' in keycon.keymaps:
+        for kmi in keycon.keymaps['Transform Modal Map'].keymap_items:
+            if kmi.propvalue == 'RESIZE' and not scale:
+                scale = set(kmi_details(kmi))
+            if kmi.propvalue == 'ROTATE' and not rot:
+                rot = set(kmi_details(kmi))
+            if kmi.propvalue == 'TRANSLATE' and not trans:
+                trans = set(kmi_details(kmi))
+    
     if not trans:
-        
-        km_dict['translate'] = def_map['translate']
-        print('default translate used...no translate found: ' + str(def_map['translate']))
+        print('Translate not found in operator keymap or Transform Modal Map')
+        km_dict['translate'] = def_map['translate']    
     else:
         km_dict['translate'] = trans
             
-    rot = set(find_kmi_by_idname('transform.rotate', keymap = '3D View'))
     if not rot:
         print('default rotate used...no rotate found: ' + str(def_map['translate']))
         km_dict['rotate'] = def_map['rotate']
     else:
         km_dict['rotate'] = rot 
     
-    scale = set(find_kmi_by_idname('transform.resize', keymap = '3D View'))
+    
     if not scale:
+        print('Scale not found in operator keymap or Transform Modal Map')
         km_dict['scale'] = def_map['scale']
     else:
         km_dict['scale'] = scale
