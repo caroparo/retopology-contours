@@ -11,6 +11,12 @@ http://www.blender.org/documentation/blender_python_api_2_70a_release/bpy.types.
 DO NOT REMOVE ANY ITEMS from the default key_maps
 If you want an item unmapped, do it as follows
 def_cs_map['example_op'] = {}
+
+Decent Resrouces:
+#http://www.blender.org/documentation/blender_python_api_2_70a_release/bpy.types.KeyMapItem.html
+#http://www.blender.org/documentation/blender_python_api_2_70a_release/bpy.types.KeyMap.html
+#http://www.blender.org/documentation/blender_python_api_2_70a_release/bpy.types.KeyConfig.html
+http://blender.stackexchange.com/questions/4832/how-to-find-the-right-keymap-to-change-on-addon-registration
 '''
 
 import bpy
